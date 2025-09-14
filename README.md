@@ -63,7 +63,7 @@ This application was developed as part of a **Final Project (Capstone Design)** 
   - ├── data/ # Example sensor data (CSV, MH2)
   - ├── realtime_log.csv # Auto-logged real-time data
   - └── requirements.txt # Python dependencies
-
+---
 ## 📊 Machine Learning Models
 
 - The app includes 4 prediction models for wind speed & direction:
@@ -75,7 +75,7 @@ This application was developed as part of a **Final Project (Capstone Design)** 
 - [ avg_windspeed, sin(wind_direction), cos(wind_direction) ]
 - Evaluated using MAE, RMSE, R², and Mean Angular Error.
 - Models are trained using historical Vaisala WXT520 dataset (2021–2024).
-
+---
 ## 🧑‍💻 Developers
 - Muhamad Hilmi Haidar – Backend & ML Engineer, Documentation, Project Leader
 - Nabila Putri Rihan – Frontend & UI/UX Developer
