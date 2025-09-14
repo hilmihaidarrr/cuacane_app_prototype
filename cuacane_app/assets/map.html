@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Visualisasi Sebaran Atmosfer - Cuacane</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    html, body, #map { height: 100%; margin: 0; padding: 0; }
+    .plume-point {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: rgba(255, 0, 0, 0.5);
+      border: 1px solid red;
+    }
+  </style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script>
+    // === Inisialisasi peta
+    var map = L.map('map').setView([-6.8877831363571, 107.60727549580955], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    // === Marker titik sensor
+    var sensorLatLng = [-6.8877831363571, 107.60727549580955];
+    L.marker(sensorLatLng).addTo(map)
+      .bindPopup("Sensor Vaisala WXT520")
+      .openPopup();
+
+    // === Layer Group untuk plume
+    var plumeLayer = L.layerGroup().addTo(map);
+
+    // === Fungsi bisa dipanggil dari QML/PyQt5
+    window.setPlumeData = function (X_list, Y_list, C_list) {
+      plumeLayer.clearLayers();
+      for (let i = 0; i < X_list.length; i++) {
+        let dx = X_list[i] / 111320.0;  // approx meter to degree
+        let dy = Y_list[i] / 110540.0;
+
+        let lat = sensorLatLng[0] + dy;
+        let lng = sensorLatLng[1] + dx;
+
+        let color = getColor(C_list[i]);
+        let circle = L.circleMarker([lat, lng], {
+          radius: 6,
+          fillColor: color,
+          fillOpacity: 0.6,
+          color: "#000",
+          weight: 0.5
+        }).addTo(plumeLayer);
+      }
+    };
+
+    // === Fungsi pewarnaan berdasarkan konsentrasi
+    function getColor(value) {
+      return value > 500 ? "#800026" :
+             value > 300 ? "#BD0026" :
+             value > 100 ? "#E31A1C" :
+             value > 50  ? "#FC4E2A" :
+             value > 10  ? "#FD8D3C" :
+             value > 1   ? "#FEB24C" :
+             "#FFEDA0";
+    }
+  </script>
+</body>
+</html>

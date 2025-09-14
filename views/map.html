@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Visualisasi Sebaran Atmosfer - Cuacane</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    html, body, #map { height: 100%; margin: 0; padding: 0; }
+    .legend {
+      position: absolute;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.85);
+      padding: 10px;
+      font-size: 12px;
+      line-height: 1.5em;
+      color: #333;
+      border-radius: 6px;
+      box-shadow: 0 0 5px rgba(0,0,0,0.3);
+      z-index: 1000; 
+      border: 1px solid #ccc;
+    }
+    .legend div {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .legend-color {
+      width: 20px;
+      height: 10px;
+    }
+  </style>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+</head>
+<body>
+  <div id="map"></div>
+
+  <div class="legend">
+    <strong>Concentration (normalization)</strong>
+    <div><div class="legend-color" style="background:red"></div> High</div>
+    <div><div class="legend-color" style="background:yellow"></div> Medium</div>
+    <div><div class="legend-color" style="background:lime"></div> Low</div>
+    <div><div class="legend-color" style="background:blue"></div> Very Low</div>
+  </div>
+
+  <script>
+    const sensorLatLng = [-6.8877831363571, 107.60727549580955];
+    const map = L.map('map').setView(sensorLatLng, 15);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 18,
+      attribution: '© OpenStreetMap'
+    }).addTo(map);
+
+    L.marker(sensorLatLng)
+      .addTo(map)
+      .bindPopup("Sensor Vaisala WXT520")
+      .openPopup();
+
+    let heatLayer = null;
+    let heatmapPending = null;
+    window.heatmapReady = false;
+
+    let retryCount = 0;
+    let maxRetry = 10;
+
+    function updateHeatmap(points) {
+      const size = map.getSize();
+
+      if (!window.heatmapReady || size.x === 0 || size.y === 0) {
+        if (!heatmapPending && retryCount < maxRetry) {
+          retryCount++;
+          console.warn("⏳ Menunda heatmap: map belum siap ukurannya...");
+          heatmapPending = setTimeout(() => {
+            heatmapPending = null;
+            updateHeatmap(points);
+          }, 200);
+        } else if (retryCount >= maxRetry) {
+          console.error("❌ Gagal render heatmap: ukuran map tidak pernah siap");
+        }
+        return;
+      }
+
+      retryCount = 0;  // ✅ Reset saat berhasil
+
+      if (heatLayer) {
+        map.removeLayer(heatLayer);
+      }
+
+      const maxValue = Math.max(...points.map(p => p[2]), 1.0);
+
+      console.log("🔥 updateHeatmap() dengan nilai riil, max:", maxValue.toFixed(2));
+      console.log("📦 Jumlah titik:", points.length);
+
+      heatLayer = L.heatLayer(points, {
+        radius: 30,
+        blur: 20,
+        maxZoom: 17,
+        max: maxValue,
+        gradient: {
+          0.0: 'blue',
+          0.4: 'lime',
+          0.7: 'yellow',
+          1.0: 'red'
+        }
+      }).addTo(map);
+    }
+
+
+    // Fungsi untuk dipanggil dari Python
+    window.updateHeatmapFromPython = function (jsonStr) {
+      try {
+        const data = JSON.parse(jsonStr);
+        console.log("📨 updateHeatmapFromPython menerima", data.length, "titik");
+        updateHeatmap(data);
+      } catch (err) {
+        console.error("❌ Gagal parsing heatmap JSON:", err);
+      }
+    };
+
+    // Dinamis radius saat zoom
+    map.on('zoomend', function () {
+      if (!heatLayer) return;
+      const zoom = map.getZoom();
+      const dynamicRadius = Math.max(5, 30 - (18 - zoom) * 2);
+      heatLayer.setOptions({ radius: dynamicRadius });
+    });
+
+    map.whenReady(() => {
+      console.log("✅ Leaflet map siap!");
+      window.heatmapReady = true;
+    });
+
+    // Uji eksistensi fungsi setelah load
+    setTimeout(() => {
+      if (typeof window.updateHeatmapFromPython === "function") {
+        console.log("✅ Fungsi updateHeatmapFromPython tersedia global.");
+      } else {
+        console.warn("❌ Fungsi updateHeatmapFromPython tidak ditemukan.");
+      }
+    }, 1000);
+  </script>
+</body>
+</html>
