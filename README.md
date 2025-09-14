@@ -66,15 +66,15 @@ This application was developed as part of a **Final Project (Capstone Design)** 
 
 ## 📊 Machine Learning Models
 
-The app includes 4 prediction models for wind speed & direction:
+- The app includes 4 prediction models for wind speed & direction:
   - 15-minute ahead → saved_models/model_15m/
   - 1-hour ahead → saved_models/model_1h/
   - 3-hour ahead → saved_models/model_3h/
   - 6-hour ahead → saved_models/model_6h/
 - **All models predict:**
-[ avg_windspeed, sin(wind_direction), cos(wind_direction) ]
-\nEvaluated using MAE, RMSE, R², and Mean Angular Error.
-\nModels are trained using historical Vaisala WXT520 dataset (2021–2024).
+- [ avg_windspeed, sin(wind_direction), cos(wind_direction) ]
+- Evaluated using MAE, RMSE, R², and Mean Angular Error.
+- Models are trained using historical Vaisala WXT520 dataset (2021–2024).
 
 ## 🧑‍💻 Developers
 - Muhamad Hilmi Haidar – Backend & ML Engineer, Documentation, Project Leader
