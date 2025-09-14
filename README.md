@@ -54,15 +54,15 @@ This application was developed as part of a **Final Project (Capstone Design)** 
 ---
 
 ## 📂 Project Structure
-cuacane_app_prototype/
-├── main_window.py # Main PyQt5 window with QML integration
-├── views/ # QML UI files (DashboardPage.qml, MapsPage.qml, etc.)
-├── widgets/ # Custom widgets (TemperatureGraph, WindCompass)
-├── utils/ # Utility modules (parser, Gaussian Plume, Pasquill classifier)
-├── saved_models/ # Trained MLP models (15m, 1h, 3h, 6h)
-├── data/ # Example sensor data (CSV, MH2)
-├── realtime_log.csv # Auto-logged real-time data
-└── requirements.txt # Python dependencies
+- cuacane_app_prototype/
+ - ├── main_window.py # Main PyQt5 window with QML integration
+ - ├── views/ # QML UI files (DashboardPage.qml, MapsPage.qml, etc.)
+ - ├── widgets/ # Custom widgets (TemperatureGraph, WindCompass)
+ - ├── utils/ # Utility modules (parser, Gaussian Plume, Pasquill classifier)
+ - ├── saved_models/ # Trained MLP models (15m, 1h, 3h, 6h)
+ - ├── data/ # Example sensor data (CSV, MH2)
+ - ├── realtime_log.csv # Auto-logged real-time data
+ - └── requirements.txt # Python dependencies
 
 ## 📊 Machine Learning Models
 
